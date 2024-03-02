@@ -1,5 +1,5 @@
 [mqtt.broker]
-hostname = "gfyvrdatadash"
+hostname = "pi-monitor.local"
 port = 1_883
 
 [mqtt.node_network]

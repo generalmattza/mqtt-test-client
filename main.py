@@ -49,16 +49,15 @@ def publish_forever(node_id):
         time.sleep(0)
 
 
-def subscribe_forever():
+def process_forever():
     bucket = "testing"
-    config_file = "config/influx_test.toml"
+    config_file = "config/.influx_live.toml"
     database_client = FastInfluxDBClient.from_config_file(config_file=config_file)
     database_client.start()
 
     client = MQTTMetricsGatherer(
         broker_config=broker_config, node_id="client_0", buffer=database_client.buffer
     ).connect()
-    # client.subscribe(topic="node_0/metrics", qos=0)
     client.subscribe(topic="+/metric", qos=0)
     client.loop_forever()
 
@@ -67,8 +66,8 @@ if __name__ == "__main__":
     setup_logging(logger_config)
     if config["mqtt"]["node_network"]["enable_prometheus_server"]:
         start_prometheus_server(config["mqtt"]["node_network"]["prometheus_port"])
-    threading.Thread(target=publish_forever, kwargs={"node_id": "node_0"}).start()
+    # threading.Thread(target=publish_forever, kwargs={"node_id": "node_0"}).start()
     # threading.Thread(
     #     target=publish_forever, kwargs={"node_id": "arduino_test01"}
     # ).start()
-    threading.Thread(target=subscribe_forever).start()
+    process_forever()
