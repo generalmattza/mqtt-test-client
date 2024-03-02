@@ -1,0 +1,7 @@
+[mqtt.broker]
+hostname = "gfyvrdatadash"
+port = 1_883
+
+[mqtt.node_network]
+enable_prometheus_server = true
+prometheus_port = 8_001

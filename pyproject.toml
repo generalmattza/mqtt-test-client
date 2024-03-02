@@ -3,40 +3,33 @@ name = "project_or_module_name"
 description = "A_short_description"
 
 # If a project, then you can specify version here
-# version = "0.0.0"
-# If a module, then fetch version dynamically (see [tool.setuptools.dynamic] below)
-dynamic = ["version"]
+version = "0.0.0"
+
 
 readme = "README.md"
 requires-python = ">=3.9"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 authors = [
-  {email = "matthew@davidson.engineering"},
-  {name = "Matthew Davidson"}
+  { email = "matthew@davidson.engineering" },
+  { name = "Matthew Davidson" },
 ]
 
 classifiers = [
-    "Development Status :: 1 - Planning",
-    "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
+  "Development Status :: 1 - Planning",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 
-# dependencies = [
-#    "numpy",
-#    "my_module @ git+https://github.com/my_github/my_repo.git@tag", 
-# ]
-
-# If a module, then use fetch version from src/module_name/__init__.py
-[tool.setuptools.dynamic]
-version = {attr = "module0.__version__"}
+dependencies = [
+  "fast-database-clients @ git+https://github.com/generalmattza/fast-database-clients.git@v2.0.5",
+  "mqtt-node-network @ git+https://github.com/generalmattza/mqtt-node-network.git",
+]
 
 [project.optional-dependencies]
-test = [
-  "pytest >= 7.1.1",
-]
+test = ["pytest >= 7.1.1"]
 
 # [project.urls]
 # homepage = "https://example.com"
