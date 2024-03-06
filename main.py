@@ -34,19 +34,14 @@ def start_prometheus_server(port=8000):
     start_http_server(port)
 
 
-def publish_forever(node_id):
-    client = MQTTNode(broker_config=broker_config, node_id=node_id).connect()
+def publish_forever():
+    client = MQTTNode(broker_config=broker_config, node_id="node_0").connect()
 
     while True:
-        data = {
-            "measurement": "test_measure",
-            "fields": {"random_data": random.random()},
-            "time": time.time(),
-            "tags": {"node_id": node_id},
-        }
+        data = random.random()
         payload = json.dumps(data)
-        client.publish(topic=f"{node_id}/metric", payload=payload)
-        time.sleep(0)
+        client.publish(topic="pzero/sensorbox_lower/temperature/IR/0", payload=payload)
+        time.sleep(1)
 
 
 def subscribe_forever():
@@ -55,20 +50,25 @@ def subscribe_forever():
     database_client = FastInfluxDBClient.from_config_file(config_file=config_file)
     database_client.start()
 
-    client = MQTTMetricsGatherer(
-        broker_config=broker_config, node_id="client_0", buffer=database_client.buffer
-    ).connect()
+    client = (
+        MQTTMetricsGatherer(
+            broker_config=broker_config,
+            node_id="client_0",
+            buffer=database_client.buffer,
+        )
+        .connect()
+        .loop_start()
+    )
     # client.subscribe(topic="node_0/metrics", qos=0)
-    client.subscribe(topic="+/metric", qos=0)
-    client.loop_forever()
+    client.subscribe(topic="pzero/#", qos=0)
 
 
 if __name__ == "__main__":
     setup_logging(logger_config)
+
     if config["mqtt"]["node_network"]["enable_prometheus_server"]:
         start_prometheus_server(config["mqtt"]["node_network"]["prometheus_port"])
-    threading.Thread(target=publish_forever, kwargs={"node_id": "node_0"}).start()
-    # threading.Thread(
-    #     target=publish_forever, kwargs={"node_id": "arduino_test01"}
-    # ).start()
-    threading.Thread(target=subscribe_forever).start()
+
+    threading.Thread(target=publish_forever).start()
+
+    subscribe_forever()

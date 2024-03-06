@@ -1,7 +1,9 @@
 [mqtt.broker]
 hostname = "gfyvrdatadash"
 port = 1_883
+timeout = 5
 
 [mqtt.node_network]
+topic_structure = "machine/module/measurement/field*"
 enable_prometheus_server = true
 prometheus_port = 8_001
