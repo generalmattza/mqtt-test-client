@@ -8,8 +8,6 @@
 """a_short_project_description"""
 # ---------------------------------------------------------------------------
 
-
-import json
 import threading
 import time
 import random
@@ -34,33 +32,37 @@ def start_prometheus_server(port=8000):
     start_http_server(port)
 
 
-def publish_forever():
-    client = MQTTNode(broker_config=broker_config, node_id="node_0").connect()
+def publish_forever(sensor_id=0):
+    client = (
+        MQTTNode(broker_config=broker_config, node_id=f"node_0.{sensor_id}")
+        .connect()
+        .loop_start()
+    )
 
     while True:
-        data = random.random()
-        payload = json.dumps(data)
-        client.publish(topic="pzero/sensorbox_lower/temperature/IR/0", payload=payload)
+        payload = random.random() + sensor_id
+        client.publish(
+            topic=f"pzero/test_publisher/test/test_sensor/{sensor_id}", payload=payload
+        )
         time.sleep(1)
 
 
 def subscribe_forever():
     bucket = "testing"
-    config_file = "config/influx_test.toml"
+    config_file = "config/.influx_testing.toml"
     database_client = FastInfluxDBClient.from_config_file(config_file=config_file)
     database_client.start()
 
-    client = (
-        MQTTMetricsGatherer(
-            broker_config=broker_config,
-            node_id="client_0",
-            buffer=database_client.buffer,
-        )
-        .connect()
-        .loop_start()
-    )
+    client = MQTTMetricsGatherer(
+        broker_config=broker_config,
+        node_id="test_client_1",
+        buffer=database_client.buffer,
+    ).connect()
     # client.subscribe(topic="node_0/metrics", qos=0)
     client.subscribe(topic="pzero/#", qos=0)
+
+    while True:
+        time.sleep(1)
 
 
 if __name__ == "__main__":
@@ -69,6 +71,8 @@ if __name__ == "__main__":
     if config["mqtt"]["node_network"]["enable_prometheus_server"]:
         start_prometheus_server(config["mqtt"]["node_network"]["prometheus_port"])
 
-    threading.Thread(target=publish_forever).start()
-
-    subscribe_forever()
+    # threading.Thread(target=subscribe_forever).start()
+    for sensor_id in range(10):
+        threading.Thread(
+            target=publish_forever, kwargs=dict(sensor_id=sensor_id)
+        ).start()
